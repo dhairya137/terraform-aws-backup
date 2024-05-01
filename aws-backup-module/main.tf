@@ -3,6 +3,9 @@ provider "aws" {
   region = var.aws_region
 }
 
+data "aws_caller_identity" "current" {}
+
+
 # Create an AWS Backup vault
 resource "aws_backup_vault" "backup_vault" {
   name        = "backup-vault-${var.resource_type}"
@@ -59,7 +62,7 @@ resource "aws_backup_plan" "backup_plan" {
 
 # Create an AWS Backup selection
 resource "aws_backup_selection" "backup_selection" {
-  iam_role_arn = aws_iam_role.backup_role.arn
+  iam_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/service-role/AWSBackupDefaultServiceRole"
   name         = "backup-selection-${var.resource_type}"
   plan_id      = aws_backup_plan.backup_plan.id
 
@@ -73,7 +76,7 @@ locals {
     ec2 = {
       schedule            = "cron(0 5 ? * * *)" # Daily at 5:00 AM UTC
       start_window        = 60
-      completion_window   = 120
+      completion_window   = 420
       recovery_point_tags = { Environment = "production" }
       cold_storage_after  = 30
       delete_after        = 120
@@ -81,7 +84,7 @@ locals {
     s3 = {
       schedule            = "cron(0 6 ? * * *)" # Daily at 6:00 AM UTC
       start_window        = 60
-      completion_window   = 120
+      completion_window   = 420
       recovery_point_tags = { Environment = "production" }
       cold_storage_after  = 30
       delete_after        = 120
@@ -89,7 +92,7 @@ locals {
     rds = {
       schedule            = "cron(0 7 ? * * *)" # Daily at 7:00 AM UTC
       start_window        = 60
-      completion_window   = 120
+      completion_window   = 420
       recovery_point_tags = { Environment = "production" }
       cold_storage_after  = 30
       delete_after        = 120
