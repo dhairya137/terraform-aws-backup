@@ -44,9 +44,9 @@ resource "aws_backup_plan" "backup_plan" {
 
   # Define backup plan rules based on the resource type
   dynamic "rule" {
-    for_each = local.backup_rules
+    for_each = var.backup_rules[var.resource_type] != null ? [var.backup_rules[var.resource_type]] : []
     content {
-      rule_name                = rule.key
+      rule_name                = "backup-rule-${var.resource_type}"
       target_vault_name        = aws_backup_vault.backup_vault.name
       schedule                 = rule.value.schedule
       start_window             = rule.value.start_window
@@ -59,6 +59,9 @@ resource "aws_backup_plan" "backup_plan" {
     }
   }
 }
+
+
+
 
 # Create an AWS Backup selection
 resource "aws_backup_selection" "backup_selection" {
