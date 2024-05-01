@@ -5,16 +5,14 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
+data "aws_kms_key" "aws_backup_key" {
+  key_id = "alias/aws/backup"
+}
 
 # Create an AWS Backup vault
 resource "aws_backup_vault" "backup_vault" {
   name        = "backup-vault-${var.resource_type}"
-  kms_key_arn = aws_kms_key.backup_key.arn
-}
-
-resource "aws_kms_key" "backup_key" {
-  description             = "Backup Key"
-  deletion_window_in_days = 10
+  kms_key_arn = data.aws_kms_key.aws_backup_key.arn
 }
 
 # Create an IAM role for AWS Backup
