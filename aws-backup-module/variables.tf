@@ -25,3 +25,8 @@ variable "backup_rules" {
   }))
   default     = {}
 }
+
+variable "required_tags" {
+  description = "A map of required tags to be applied to all resources"
+  type        = map(string)
+}

@@ -3,6 +3,11 @@ provider "aws" {
   region = var.aws_region
 }
 
+locals {
+  required_tags_provided = length(var.required_tags) > 0
+}
+
+
 data "aws_caller_identity" "current" {}
 
 data "aws_kms_key" "aws_backup_key" {
@@ -11,8 +16,12 @@ data "aws_kms_key" "aws_backup_key" {
 
 # Create an AWS Backup vault
 resource "aws_backup_vault" "backup_vault" {
+  count = local.required_tags_provided ? 1 : 0
+
   name        = "backup-vault-${var.resource_type}"
   kms_key_arn = data.aws_kms_key.aws_backup_key.arn
+
+  tags = var.required_tags
 }
 
 # Create an IAM role for AWS Backup
@@ -38,6 +47,8 @@ resource "aws_iam_role_policy_attachment" "backup_role_policy" {
 
 # Create an AWS Backup plan
 resource "aws_backup_plan" "backup_plan" {
+  count = local.required_tags_provided ? 1 : 0
+
   name = "backup-plan-${var.resource_type}"
 
   # Define backup plan rules based on the resource type
@@ -56,6 +67,8 @@ resource "aws_backup_plan" "backup_plan" {
       }
     }
   }
+
+  tags = var.required_tags
 }
 
 
@@ -69,35 +82,5 @@ resource "aws_backup_selection" "backup_selection" {
 
   # Assign resources based on the provided resource IDs or ARNs
   resources = var.resource_ids
-}
 
-# Define local values for backup rules
-locals {
-  backup_rules = {
-    ec2 = {
-      schedule            = "cron(0 5 ? * * *)" # Daily at 5:00 AM UTC
-      start_window        = 60
-      completion_window   = 420
-      recovery_point_tags = { Environment = "production" }
-      cold_storage_after  = 30
-      delete_after        = 120
-    }
-    s3 = {
-      schedule            = "cron(0 6 ? * * *)" # Daily at 6:00 AM UTC
-      start_window        = 60
-      completion_window   = 420
-      recovery_point_tags = { Environment = "production" }
-      cold_storage_after  = 30
-      delete_after        = 120
-    }
-    rds = {
-      schedule            = "cron(0 7 ? * * *)" # Daily at 7:00 AM UTC
-      start_window        = 60
-      completion_window   = 420
-      recovery_point_tags = { Environment = "production" }
-      cold_storage_after  = 30
-      delete_after        = 120
-    }
-    # Add more resource types and their corresponding backup rules
-  }
 }
