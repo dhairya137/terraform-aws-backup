@@ -5,6 +5,7 @@ provider "aws" {
 
 locals {
   required_tags_provided = length(var.required_tags) > 0
+  #valid_tag_keys         = keys(var.required_tags) == var.allowed_tag_keys
 }
 
 
@@ -56,7 +57,7 @@ resource "aws_backup_plan" "backup_plan" {
     for_each = var.backup_rules[var.resource_type] != null ? [var.backup_rules[var.resource_type]] : []
     content {
       rule_name                = "backup-rule-${var.resource_type}"
-      target_vault_name        = aws_backup_vault.backup_vault.name
+      target_vault_name        = aws_backup_vault.backup_vault[0].name
       schedule                 = rule.value.schedule
       start_window             = rule.value.start_window
       completion_window        = rule.value.completion_window
@@ -78,7 +79,7 @@ resource "aws_backup_plan" "backup_plan" {
 resource "aws_backup_selection" "backup_selection" {
   iam_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/service-role/AWSBackupDefaultServiceRole"
   name         = "backup-selection-${var.resource_type}"
-  plan_id      = aws_backup_plan.backup_plan.id
+  plan_id      = aws_backup_plan.backup_plan[0].id
 
   # Assign resources based on the provided resource IDs or ARNs
   resources = var.resource_ids

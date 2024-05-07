@@ -5,7 +5,7 @@ output "backup_plan_id" {
 
 output "backup_selection_id" {
   description = "The ID of the created backup selection"
-  value       = aws_backup_selection.backup_selection[0].id
+  value       = aws_backup_selection.backup_selection.id
 }
 
 output "backup_vault_id" {

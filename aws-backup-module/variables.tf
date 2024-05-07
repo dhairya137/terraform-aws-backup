@@ -30,3 +30,9 @@ variable "required_tags" {
   description = "A map of required tags to be applied to all resources"
   type        = map(string)
 }
+
+# variable "allowed_tag_keys" {
+#   description = "A list of allowed tag keys"
+#   type        = list(string)
+#   default     = ["ApplicationName", "Client", "Owner", "ProjectName", "OwnerEmail"]
+# }
