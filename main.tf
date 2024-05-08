@@ -9,7 +9,7 @@ module "ec2_backup" {
     Client     = "Client"
     Owner        = "Owner"
     ProjectName = "Project"
-    OwnerEmail = "abc@example.com"
+    OwnerEmail = "demo@example.com"
   }
 }
 
@@ -25,7 +25,7 @@ module "s3_backup" {
     Client     = "Client"
     Owner        = "Owner"
     ProjectName = "Project"
-    OwnerEmail = "abc@example.com"
+    OwnerEmail = "demo@example.com"
   }
 }
 

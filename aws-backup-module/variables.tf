@@ -39,9 +39,9 @@ variable "required_tags" {
 
   validation {
     condition = alltrue([
-      for key, value in var.required_tags : value != ""
+      for key, value in var.required_tags : key == "OwnerEmail" ? can(regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", value)) : true
     ])
-    error_message = "Tag values must not be empty strings."
+    error_message = "The OwnerEmail tag value must be a valid email address."
   }
 }
 
