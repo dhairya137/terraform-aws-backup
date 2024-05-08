@@ -27,9 +27,24 @@ variable "backup_rules" {
 }
 
 variable "required_tags" {
-  description = "A map of required tags to be applied to all resources"
+  description = "A map of required tags and their allowed values"
   type        = map(string)
+
+  validation {
+    condition = alltrue([
+      for key, value in var.required_tags : contains(["ApplicationName", "Client", "Owner", "ProjectName", "OwnerEmail"], key)
+    ])
+    error_message = "Only the following tag keys are allowed: ApplicationName, Client, Owner, ProjectName, OwnerEmail."
+  }
+
+  validation {
+    condition = alltrue([
+      for key, value in var.required_tags : value != ""
+    ])
+    error_message = "Tag values must not be empty strings."
+  }
 }
+
 
 # variable "allowed_tag_keys" {
 #   description = "A list of allowed tag keys"
